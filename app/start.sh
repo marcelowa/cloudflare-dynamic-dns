@@ -8,6 +8,8 @@ set -e
 # ZONE the zone name, eg. example.com
 # HOST the record name, eg. sub.example.com
 
+echo "Welcome to cloudflare-dynamic-dns";
+
 if [ -z "$EMAIL" ]; then
     echo "EMAIL env variable is missing"
     exit 1
@@ -31,5 +33,5 @@ fi
 crontab -l > current_crontab
 echo "*/5 * * * * EMAIL=$EMAIL API_KEY=$API_KEY ZONE=$ZONE HOST=$HOST /app/cloudflare-dynamic-dns.sh" >> current_crontab 
 crontab current_crontab
-
+(sleep 1 && /app/cloudflare-dynamic-dns.sh) &
 crond -f -L /dev/stdout

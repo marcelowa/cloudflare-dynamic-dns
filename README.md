@@ -11,12 +11,17 @@ Running this docker requires passing 4 environment variables
 
 ## Run
 ```shell
-docker run -b --name=cloudflare-dynamic-dns -e API_KEY=your_api_key_on_cloudflare -e EMAIL=youremail@example.com -e ZONE=example.com -e HOST=foo.example.com marcelowa/cloudflare-dynamic-dns
+docker run -d --name=cloudflare-dynamic-dns \
+    -e API_KEY=your_api_key_on_cloudflare \
+    -e EMAIL=youremail@example.com \
+    -e ZONE=example.com \
+    -e HOST=foo.example.com \
+    marcelowa/cloudflare-dynamic-dns:latest
 ```
 
 ## Pull
 ```shell
-docker pull marcelowa/cloudflare-dynamic-dns
+docker pull marcelowa/cloudflare-dynamic-dns:latest
 ```
 
 License
