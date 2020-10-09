@@ -1,0 +1,20 @@
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+## vscode
+.history
+.vscode
+
+#webstorm
+.idea
+
+
+#logs
+*.log
+
+## leave this last in order to override
+!.gitkeep
