@@ -21,12 +21,12 @@ else
   echo "Record IP does not match the current IP, attempting to update..."
   
   UPDATE_PAYLOAD=$( jq -n \
-    --arg zoneId "$ZONE_ID" \
-    --arg recordType "$RECORD_TYPE" \
-    --arg recordName "$HOST" \
-    --arg recordTtl "$RECORD_TTL" \
-    --arg recordProxied "$RECORD_PROXIED" \
-    --arg currentIp "$CURRENT_IP" \
+    --arg zoneId $ZONE_ID \
+    --arg recordType $RECORD_TYPE \
+    --arg recordName $HOST \
+    --argjson recordTtl $RECORD_TTL \
+    --argjson recordProxied $RECORD_PROXIED \
+    --arg currentIp $CURRENT_IP \
   '{id: $zoneId, type: $recordType, name: $recordName, ttl: $recordTtl, proxied: $recordProxied, content: $currentIp}' )
 
   UPDATE_RECORD_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "X-Auth-Email: $EMAIL" -H "X-Auth-Key: $API_KEY" -H "Content-Type: application/json" --data "$(echo $UPDATE_PAYLOAD)")
