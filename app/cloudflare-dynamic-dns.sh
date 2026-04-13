@@ -5,11 +5,11 @@ CURRENT_IP=$(curl -s http://ipv4.icanhazip.com)
 
 echo "$(date) Current IP $CURRENT_IP"
 
-echo "$(date) Fetching Zone: $ZONE ID"
-ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=$ZONE" -H "Authorization: Bearer $API_TOKEN" | jq -j ".result[0].id")
+echo "$(date) Fetching Zone: $CLOUDFLARE_ZONE ID"
+ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=$CLOUDFLARE_ZONE" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -j ".result[0].id")
 
-echo "$(date) Fetching Record: $HOST_NAME Information"
-GET_RECORD_RESPONSE=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$HOST_NAME" -H "Authorization: Bearer $API_TOKEN")
+echo "$(date) Fetching Record: $CLOUDFLARE_HOST Information"
+GET_RECORD_RESPONSE=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$CLOUDFLARE_HOST" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
 RECORD_ID=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].id")
 RECORD_TYPE=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].type")
 RECORD_TTL=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].ttl")
@@ -23,7 +23,7 @@ else
   echo "$(date) Record IP does not match the current IP, attempting to update..."
   
   UPDATE_PAYLOAD=$( jq -n \
-    --arg recordName $HOST_NAME \
+    --arg recordName $CLOUDFLARE_HOST \
     --argjson recordTtl $RECORD_TTL \
     --arg recordType $RECORD_TYPE \
     --arg comment "updated by cloudflare-dynamic-dns" \
@@ -31,7 +31,7 @@ else
     --argjson recordProxied $RECORD_PROXIED \
   '{name: $recordName, ttl: $recordTtl, type: $recordType, comment: $comment, content: $currentIp, proxied: $recordProxied}' )
 
-  UPDATE_RECORD_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "Authorization: Bearer $API_TOKEN" -H --data "$(echo $UPDATE_PAYLOAD)")
+  UPDATE_RECORD_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H --data "$(echo $UPDATE_PAYLOAD)")
   IS_SUCCESS=$(echo $UPDATE_RECORD_RESPONSE | jq -j ".success")
         
   if [ "$IS_SUCCESS" == true ]; then
