@@ -4,16 +4,14 @@ A small docker image that checks and update cloudflare dns when the ip changes e
 ## Usage:
 Running this docker requires passing 4 environment variables  
   
-`API_KEY` Your API key on Cloudflare  
-`EMAIL` The email you are using to login to Cloudflare  
+`API_TOKEN` Your API token on Cloudflare  
 `ZONE` The zone on which the host your would like to update reside, typically it would be the domain, eg. example.com  
 `HOST` The host you would like to update, eg. foo.example.com  
 
 ## Run
 ```shell
 docker run -d --name=cloudflare-dynamic-dns \
-    -e API_KEY=your_api_key_on_cloudflare \
-    -e EMAIL=youremail@example.com \
+    -e API_TOKEN=your_api_key_on_cloudflare \
     -e ZONE=example.com \
     -e HOST=foo.example.com \
     marcelowa/cloudflare-dynamic-dns:latest

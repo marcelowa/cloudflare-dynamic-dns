@@ -10,12 +10,7 @@ set -e
 
 echo "Welcome to cloudflare-dynamic-dns";
 
-if [ -z "$EMAIL" ]; then
-    echo "EMAIL env variable is missing"
-    exit 1
-fi
-
-if [ -z "$API_KEY" ]; then
+if [ -z "$API_TOKEN" ]; then
     echo "API_KEY env variable is missing"
     exit 1
 fi
@@ -31,7 +26,7 @@ if [ -z "$HOST" ]; then
 fi
 
 crontab -l > current_crontab
-echo "*/5 * * * * EMAIL=$EMAIL API_KEY=$API_KEY ZONE=$ZONE HOST=$HOST /app/cloudflare-dynamic-dns.sh" >> current_crontab 
+echo "*/5 * * * * API_TOKEN=$API_TOKEN ZONE=$ZONE HOST=$HOST /app/cloudflare-dynamic-dns.sh" >> current_crontab 
 crontab current_crontab
 (sleep 1 && /app/cloudflare-dynamic-dns.sh) &
 crond -f -L /dev/stdout
