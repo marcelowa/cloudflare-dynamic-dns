@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 
+echo "$(date) attempting IP update for $CLOUDFLARE_ZONE $CLOUDFLARE_HOST"
 echo "$(date) Fetching Current IP"
 CURRENT_IP=$(curl -s http://ipv4.icanhazip.com)
 
@@ -10,6 +11,7 @@ ZONE_ID=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=$CLOUDFLARE_Z
 
 echo "$(date) Fetching Record: $CLOUDFLARE_HOST Information"
 GET_RECORD_RESPONSE=$(curl -s "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$CLOUDFLARE_HOST" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+
 RECORD_ID=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].id")
 RECORD_TYPE=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].type")
 RECORD_TTL=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].ttl")
@@ -18,7 +20,7 @@ RECORD_IP=$(echo $GET_RECORD_RESPONSE | jq -j ".result[0].content")
 
 echo "$(date) Checking if record IP: $RECORD_IP matches the current IP: $CURRENT_IP"
 if [ "$CURRENT_IP" == "$RECORD_IP" ]; then
-    echo "$(date) Current IP matches the record IP, no need to update."
+  echo "$(date) Current IP matches the record IP, no need to update."
 else
   echo "$(date) Record IP does not match the current IP, attempting to update..."
   
@@ -26,12 +28,12 @@ else
     --arg recordName $CLOUDFLARE_HOST \
     --argjson recordTtl $RECORD_TTL \
     --arg recordType $RECORD_TYPE \
-    --arg comment "updated by cloudflare-dynamic-dns" \
     --arg currentIp $CURRENT_IP \
     --argjson recordProxied $RECORD_PROXIED \
-  '{name: $recordName, ttl: $recordTtl, type: $recordType, comment: $comment, content: $currentIp, proxied: $recordProxied}' )
+  '{name: $recordName, ttl: $recordTtl, type: $recordType, comment: "updated by cloudflare-dynamic-dns", content: $currentIp, proxied: $recordProxied}' )
 
-  UPDATE_RECORD_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H --data "$(echo $UPDATE_PAYLOAD)")
+  UPDATE_RECORD_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$RECORD_ID" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" --data "$(echo $UPDATE_PAYLOAD)")
+
   IS_SUCCESS=$(echo $UPDATE_RECORD_RESPONSE | jq -j ".success")
         
   if [ "$IS_SUCCESS" == true ]; then
